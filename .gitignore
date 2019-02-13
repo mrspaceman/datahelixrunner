@@ -1,0 +1,14 @@
+.idea
+.vscode
+node_modules/
+*.iml
+*.orig
+classes/
+profiler/
+
+# Eclipse files
+**/*.cache-main
+**/*.cache-tests
+**/*.classpath
+**/*.project
+**/*.settings
