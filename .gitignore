@@ -5,6 +5,7 @@ node_modules/
 *.orig
 classes/
 profiler/
+out/
 
 # Eclipse files
 **/*.cache-main
