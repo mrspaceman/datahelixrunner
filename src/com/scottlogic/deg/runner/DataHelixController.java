@@ -1,15 +1,8 @@
 package com.scottlogic.deg.runner;
 
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-
-import java.io.*;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
@@ -18,7 +11,10 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.stage.Window;
+
+import java.io.*;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 public class DataHelixController {
 
@@ -66,6 +62,8 @@ public class DataHelixController {
 
     @FXML // fx:id="txtOutputFilename"
     private TextField txtOutputFilename; // Value injected by FXMLLoader
+    private ObservableList listLogMessages;
+    private Stage stage;
 
     @FXML
     void onBtnGenerate(ActionEvent event) {
@@ -115,10 +113,8 @@ public class DataHelixController {
         txtGeneratorJarFilename.setText("C:\\Users\\aaspellc\\src\\datahelix-0.0.0\\generator.jar");
         txtProfileFilename.setText("C:\\Users\\aaspellc\\src\\datahelix\\examples\\actor-names\\profile.json");
         txtOutputFilename.setText("C:\\Users\\aaspellc\\src\\datahelix\\examples\\actor-names\\profile.json.csv");
+        readProfileIntoTextArea();
     }
-
-    private ObservableList listLogMessages;
-    private Stage stage;
 
     void setStageAndSetupListeners(Stage primaryStage) {
         this.stage = primaryStage;
@@ -151,16 +147,18 @@ public class DataHelixController {
     public void readProfileIntoTextArea() {
         txtProfileJson.clear();
         File f = new File(txtProfileFilename.getText());
-        String line;
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(f));
+        if (f.exists()) {
+            String line;
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(f));
 
-            while ((line = br.readLine()) != null) {
-                txtProfileJson.appendText(line + "\n");
+                while ((line = br.readLine()) != null) {
+                    txtProfileJson.appendText(line + "\n");
+                }
+                br.close();
+            } catch (IOException ex) {
+                listLogMessages.add(getTextNodeError("Error reading profile file [" + ex.getMessage() + "]"));
             }
-            br.close();
-        } catch (IOException ex) {
-            listLogMessages.add(getTextNodeError("Error reading profile file [" + ex.getMessage() + "]"));
         }
     }
 
@@ -174,13 +172,36 @@ public class DataHelixController {
         }
     }
 
+
+    void executeGenerateCommand() {
+        btnGenerate.setDisable(true);
+        btnVerify.setDisable(true);
+
+        // Create a Runnable
+        Runnable generateTask = new Runnable() {
+            public void run() {
+                generateCommand();
+            }
+        };
+
+        // Run the task in a background thread
+        Thread backgroundThread = new Thread(generateTask);
+        backgroundThread.setName("ExecuteGenerator");
+
+        // Terminate the running thread if the application exits
+        backgroundThread.setDaemon(true);
+
+        // Start the thread
+        backgroundThread.start();
+    }
+
     /**
      * execute the generator command
      * <p>
      * <code>java -jar ..\release-0.0.0\generator.jar generate bug-526-profile-2.json bug-526-profile-2.csv -w REDUCTIVE -t RANDOM</code>
      * </p>
      */
-    void executeGenerateCommand() {
+    void generateCommand() {
         try {
             Runtime rt = Runtime.getRuntime();
             StringBuilder cmdString = new StringBuilder("java -jar ");
@@ -193,6 +214,8 @@ public class DataHelixController {
             cmdString.append((String) choiceWalker.getValue());
             cmdString.append(" -t ");
             cmdString.append((String) choiceGenerateType.getValue());
+            cmdString.append(" -n ");
+            cmdString.append(slideNbrRowsOutput.getValue());
 
             if (chkOverwrite.isSelected()) {
                 cmdString.append(" --overwrite ");
@@ -211,13 +234,18 @@ public class DataHelixController {
             System.out.println("Here is the standard output of the command:\n");
             String s = null;
             while ((s = stdInput.readLine()) != null) {
-                listLogMessages.add(getTextNode(s));
+                final String tmpStr = s;
+                Platform.runLater(() -> {
+                    listLogMessages.add(getTextNode(tmpStr + "\n"));
+                });
             }
 
             // read any errors from the attempted command
-            System.out.println("Here is the standard error of the command (if any):\n");
             while ((s = stdError.readLine()) != null) {
-                listLogMessages.add(getTextNodeError(s));
+                final String tmpStr = s;
+                Platform.runLater(() -> {
+                    listLogMessages.add(getTextNodeError(tmpStr + "\n"));
+                });
             }
 
             int exitVal = pr.waitFor();
@@ -227,6 +255,11 @@ public class DataHelixController {
             System.out.println(e.toString());
             e.printStackTrace();
         }
+
+        Platform.runLater(() -> {
+            btnGenerate.setDisable(false);
+            btnVerify.setDisable(false);
+        });
     }
 
     private Text getTextNodeError(String s) {
@@ -240,7 +273,7 @@ public class DataHelixController {
         Text t = new Text(s);
 
         //Setting font to the text
-        t.setFont(new Font(15));
+        t.setFont(new Font("Source Code Pro", 12));
 
         //Setting color to the text
         t.setFill(Color.DARKSLATEBLUE);
