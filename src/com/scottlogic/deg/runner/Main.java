@@ -21,7 +21,7 @@ public class Main extends Application {
         Parent root = (Parent) loader.load();
         DataHelixController controller = (DataHelixController) loader.getController();
         controller.setStageAndSetupListeners(primaryStage); // or what you want to do
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("DataHelix Runner");
         primaryStage.setScene(new Scene(root, 800, 600));
 
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {

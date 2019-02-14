@@ -1,6 +1,8 @@
 package com.scottlogic.deg.runner;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -114,6 +116,13 @@ public class DataHelixController {
         txtProfileFilename.setText("C:\\Users\\aaspellc\\src\\datahelix\\examples\\actor-names\\profile.json");
         txtOutputFilename.setText("C:\\Users\\aaspellc\\src\\datahelix\\examples\\actor-names\\profile.json.csv");
         readProfileIntoTextArea();
+
+        slideNbrRowsOutput.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> source, Number oldValue, Number newValue) {
+                lblNbrRowsOutput.textProperty().setValue(String.valueOf((int) slideNbrRowsOutput.getValue()) + " Max Rows");
+            }
+        });
     }
 
     void setStageAndSetupListeners(Stage primaryStage) {
@@ -176,6 +185,7 @@ public class DataHelixController {
     void executeGenerateCommand() {
         btnGenerate.setDisable(true);
         btnVerify.setDisable(true);
+        listLogMessages.clear();
 
         // Create a Runnable
         Runnable generateTask = new Runnable() {
@@ -215,13 +225,20 @@ public class DataHelixController {
             cmdString.append(" -t ");
             cmdString.append((String) choiceGenerateType.getValue());
             cmdString.append(" -n ");
-            cmdString.append(slideNbrRowsOutput.getValue());
+            cmdString.append(Math.round(slideNbrRowsOutput.getValue()));
 
             if (chkOverwrite.isSelected()) {
                 cmdString.append(" --overwrite ");
             }
 
-            System.out.println(cmdString);
+            if (chkViolate.isSelected()) {
+                cmdString.append(" --violate ");
+            }
+
+            System.out.println("Executing command : " + cmdString);
+            Platform.runLater(() -> {
+                listLogMessages.add(getTextNode("Executing command : " + cmdString + "\n", Color.DARKGREEN));
+            });
             Process pr = rt.exec(cmdString.toString());
 
             BufferedReader stdInput = new BufferedReader(new
@@ -260,6 +277,12 @@ public class DataHelixController {
             btnGenerate.setDisable(false);
             btnVerify.setDisable(false);
         });
+    }
+
+    private Text getTextNode(String s, Color txtColor) {
+        Text t = getTextNode(s);
+        t.setFill(txtColor);
+        return t;
     }
 
     private Text getTextNodeError(String s) {
