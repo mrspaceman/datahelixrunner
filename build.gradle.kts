@@ -6,6 +6,8 @@
  * User Manual available at https://docs.gradle.org/6.0.1/userguide/tutorial_java_projects.html
  */
 
+group = "com.scottlogic.datahelix.generator"
+
 plugins {
     // Apply the java plugin to add support for Java
     java
@@ -31,6 +33,11 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation("junit:junit:4.12")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 application {
