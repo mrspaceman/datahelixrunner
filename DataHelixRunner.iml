@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="org.fxmisc.richtext:richtextfx:1.0.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="org.controlsfx:controlsfx:8.40.14" level="project" />
+    <orderEntry type="library" name="lib" level="project" />
   </component>
 </module>
