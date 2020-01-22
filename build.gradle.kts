@@ -35,7 +35,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClassName = "com.scottlogic.datahelix.generator.Main"
+    mainClassName = "com.scottlogic.datahelix.generator.DataHelixRunnerMain"
 }
 
 javafx {

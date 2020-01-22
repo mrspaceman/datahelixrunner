@@ -9,7 +9,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-public class Main extends Application {
+public class DataHelixRunnerMain extends Application {
 
     public static void main(String[] args) {
         launch(args);
@@ -17,7 +17,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("DataHelixRunner.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DataHelixRunner.fxml"));
         Parent root = (Parent) loader.load();
         DataHelixController controller = (DataHelixController) loader.getController();
         controller.setStageAndSetupListeners(primaryStage); // or what you want to do
