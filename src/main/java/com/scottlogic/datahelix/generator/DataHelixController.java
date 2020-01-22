@@ -1,4 +1,4 @@
-package com.scottlogic.deg.runner;
+package com.scottlogic.datahelix.generator;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -50,9 +50,6 @@ public class DataHelixController {
     @FXML // fx:id="btnVerify"
     private Button btnVerify; // Value injected by FXMLLoader
 
-    @FXML // fx:id="chkViolate"
-    private CheckBox chkViolate; // Value injected by FXMLLoader
-
     @FXML // fx:id="choiceWalker"
     private ChoiceBox<?> choiceWalker; // Value injected by FXMLLoader
 
@@ -103,7 +100,6 @@ public class DataHelixController {
         assert chkOverwrite != null : "fx:id=\"chkOverwrite\" was not injected: check your FXML file 'DataHelixRunner.fxml'.";
         assert txtProfileFilename != null : "fx:id=\"txtProfileFilename\" was not injected: check your FXML file 'DataHelixRunner.fxml'.";
         assert btnVerify != null : "fx:id=\"btnVerify\" was not injected: check your FXML file 'DataHelixRunner.fxml'.";
-        assert chkViolate != null : "fx:id=\"chkViolate\" was not injected: check your FXML file 'DataHelixRunner.fxml'.";
         assert choiceWalker != null : "fx:id=\"choiceWalker\" was not injected: check your FXML file 'DataHelixRunner.fxml'.";
         assert lblNbrRowsOutput != null : "fx:id=\"lblNbrRowsOutput\" was not injected: check your FXML file 'DataHelixRunner.fxml'.";
         assert txtGeneratorJarFilename != null : "fx:id=\"txtGeneratorJarFilename\" was not injected: check your FXML file 'DataHelixRunner.fxml'.";
@@ -112,7 +108,7 @@ public class DataHelixController {
         //Retrieving the observable list of the TextFlow Pane
         listLogMessages = txtOutputLog.getChildren();
 
-        txtGeneratorJarFilename.setText("C:\\Users\\aaspellc\\src\\datahelix-0.0.0\\generator.jar");
+        txtGeneratorJarFilename.setText("C:\\Users\\aaspellc\\src\\datahelix\\orchestrator\\build\\libs\\generator.jar");
         txtProfileFilename.setText("C:\\Users\\aaspellc\\src\\datahelix\\examples\\actor-names\\profile.json");
         txtOutputFilename.setText("C:\\Users\\aaspellc\\src\\datahelix\\examples\\actor-names\\profile.json.csv");
         readProfileIntoTextArea();
@@ -216,23 +212,17 @@ public class DataHelixController {
             Runtime rt = Runtime.getRuntime();
             StringBuilder cmdString = new StringBuilder("java -jar ");
             cmdString.append(txtGeneratorJarFilename.getText());
-            cmdString.append(" generate ");
+            cmdString.append(" --profile-file=");
             cmdString.append(txtProfileFilename.getText());
             cmdString.append(" ");
             cmdString.append(txtOutputFilename.getText());
-            cmdString.append(" -w ");
-            cmdString.append((String) choiceWalker.getValue());
-            cmdString.append(" -t ");
+            cmdString.append(" --generation-type ");
             cmdString.append((String) choiceGenerateType.getValue());
             cmdString.append(" -n ");
             cmdString.append(Math.round(slideNbrRowsOutput.getValue()));
 
             if (chkOverwrite.isSelected()) {
-                cmdString.append(" --overwrite ");
-            }
-
-            if (chkViolate.isSelected()) {
-                cmdString.append(" --violate ");
+                cmdString.append(" --replace ");
             }
 
             System.out.println("Executing command : " + cmdString);

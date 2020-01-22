@@ -1,4 +1,4 @@
-package com.scottlogic.deg.runner;
+package com.scottlogic.datahelix.generator;
 
 import javafx.application.Application;
 import javafx.application.Platform;
